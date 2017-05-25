@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration strict="true" status="debug" monitorInterval="20">
+    <Properties>
+        <!-- logging-level options are 'info' and 'debug' -->
+        <Property name="logging-level">info</Property>
+
+        <!-- exception-logging options are 'none', 'short', 'full', or a number
+             indicating how many lines of the stacktrace should be logged -->
+        <Property name="exception-logging">short</Property>
+
+        <Property name="log-path">${env:CATALINA_HOME}/logs${web:contextPath}</Property>
+        <Property name="log-file">${date:yyyy-MM-dd}</Property>
+
+        <Property name="file-name">${log-path}/${date:yyyy-MM-dd}</Property>
+        <Property name="file-pattern">${log-path}/%d{yyyy-MM-dd}.%i</Property>
+
+        <Property name="pattern-layout">%date{yyyy-MM-dd HH:mm:ss,SSS} [%thread] %-5level %logger{1.} - %message</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="info-log" fileName="${file-name}-info.log" filePattern="${file-pattern}" ignoreExceptions="false">
+            <PatternLayout alwaysWriteExceptions="false">
+                <pattern>${pattern-layout} %xException{${exception-logging}}%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+        </RollingFile>
+
+        <RollingFile name="debug-log" fileName="${file-name}-debug.log" filePattern="${file-pattern}" ignoreExceptions="false">
+            <PatternLayout alwaysWriteExceptions="false">
+                <pattern>${pattern-layout} %xException{full}%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="ACCEPT" />
+        </RollingFile>
+
+        <Console name="console-log" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>${pattern-layout} %xException{${exception-logging}}%n</pattern>
+            </PatternLayout>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="${logging-level}">
+            <AppenderRef ref="info-log" />
+            <AppenderRef ref="debug-log" />
+        </Root>
+    </Loggers>
+</Configuration>
