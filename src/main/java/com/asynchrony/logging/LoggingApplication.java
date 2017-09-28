@@ -27,8 +27,22 @@ public class LoggingApplication implements ApplicationRunner {
 
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
+        System.out.println();
+
         for(Level level : Level.values()){
-            LOG.log(level, "Log Level {}", level);
+            LOG.log(level, "Log4j 2.x {}", level);
         }
+
+        java.util.logging.Logger.getLogger("com.asynchrony.logging.LoggingApplication")
+                    .severe("java.util.logging");
+
+        org.slf4j.LoggerFactory.getLogger("com.asynchrony.logging.LoggingApplication")
+                    .error("sl4fj");
+
+        org.apache.commons.logging.LogFactory.getLog("com.asynchrony.logging.LoggingApplication")
+                    .error("commons-logging");
+
+        org.apache.log4j.LogManager.getLogger("com.asynchrony.logging.LoggingApplication")
+                    .error("log4j 1.x");
     }
 }
