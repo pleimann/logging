@@ -1,3 +1,6 @@
 spring:
   application:
     name: LoggingExample
+
+logging:
+  register-shutdown-hook: true
