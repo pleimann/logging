@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration strict="true" status="warn" monitorInterval="20">
     <Properties>
-        <!-- logging-level options are 'info' and 'debug' -->
-        <Property name="logging-level">info</Property>
+        <!-- logging-level options should be limited to 'INFO' and 'DEBUG' -->
+        <!-- When less specific (INFO, WARN, ERROR, FATAL), the debug log file
+            will remain empty but contain all logs if more specific (DEBUG, TRACE) -->
+        <Property name="logging-level">INFO</Property>
 
-        <!-- exception-logging options are 'none', 'short', 'full', or a number
-             indicating how many lines of the stacktrace should be logged -->
-        <Property name="exception-logging">short</Property>
-
-        <Property name="log-path">${env:CATALINA_HOME}/logs${web:contextPath}</Property>
-        <Property name="log-file">${date:yyyy-MM-dd}</Property>
-
-        <Property name="file-name">${log-path}/${date:yyyy-MM-dd}</Property>
-        <Property name="file-pattern">${log-path}/%d{yyyy-MM-dd}.%i</Property>
-
-        <Property name="pattern-layout">%date{yyyy-MM-dd HH:mm:ss,SSS} [%thread] %-5level %logger{1.} - %message</Property>
+        <Property name="log-path">${env:CATALINA_HOME}/logs/</Property>
+        <Property name="file-name">gh</Property>
+        <Property name="pattern-layout">%date{ISO8601}{UTC} [%thread] %-5level %logger{1} - %NDC %message</Property>
     </Properties>
-
+    <Scripts>
+        <Script name="debugLoggingEnabled" language="javascript"><![CDATA[
+           var loggingLevel = substitutor.getVariableResolver().lookup("logging-level");
+           loggingLevel && loggingLevel === 'DEBUG' || loggingLevel === 'TRACE';
+        ]]></Script>
+    </Scripts>
     <Appenders>
-        <RollingFile name="info-log" fileName="${file-name}-info.log" filePattern="${file-pattern}" ignoreExceptions="false">
+        <RollingFile name="info-log" fileName="${file-name}.log" filePattern="${file-name}_%d{yyyy-MM-dd}_%i.log"
+                     ignoreExceptions="false">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout alwaysWriteExceptions="false">
-                <pattern>${pattern-layout} %xException{${exception-logging}}%n</pattern>
+                <pattern>${pattern-layout} %xException{10}%n</pattern>
             </PatternLayout>
             <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
-            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+            <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-
-        <RollingFile name="debug-log" fileName="${file-name}-debug.log" filePattern="${file-pattern}" ignoreExceptions="false">
+        <RollingFile name="debug-log" fileName="${file-name}-debug.log"
+                     filePattern="${file-name}_%d{yyyy-MM-dd}_%i-debug.log" ignoreExceptions="false">
+            <ScriptFilter onMatch="ACCEPT" onMisMatch="DENY">
+                <ScriptRef ref="debugLoggingEnabled" />
+            </ScriptFilter>
             <PatternLayout alwaysWriteExceptions="false">
                 <pattern>${pattern-layout} %xException{full}%n</pattern>
             </PatternLayout>
             <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
-            <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="ACCEPT" />
+            <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-
-        <Console name="console-log" target="SYSTEM_OUT">
-            <PatternLayout>
-                <pattern>${pattern-layout} %xException{${exception-logging}}%n</pattern>
-            </PatternLayout>
-        </Console>
     </Appenders>
-
     <Loggers>
         <Root level="${logging-level}">
             <AppenderRef ref="info-log" />
