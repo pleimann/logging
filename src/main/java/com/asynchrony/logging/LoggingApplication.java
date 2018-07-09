@@ -16,7 +16,8 @@ public class LoggingApplication implements ApplicationRunner {
     private static final Logger LOG = LogManager.getLogger();
 
     public static void main(String[] args) {
-        System.out.println("WTF?");
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+
 		SpringApplication.run(LoggingApplication.class, args);
 	}
 
