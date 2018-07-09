@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.3.RELEASE'
+        springBootVersion = '2.0.3.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -11,30 +11,27 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'idea'
+apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
+group = 'com.asynchrony.logging'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
-
-bootRun {
-    // Allows changing files in resources
-    // to result in an application restart
-    addResources = true
-}
+sourceCompatibility = 10
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    def log4jVersion = "2.8.1"
+    def log4jVersion = "2.11.0"
+    def log4jAuditVersion = "1.0.0"
 
     compile('org.springframework.boot:spring-boot-starter-web') {
         exclude module: 'spring-boot-starter-logging'
     }
 
-    compile('org.hibernate:hibernate-core:5.2.11.Final')
+    compile('org.hibernate:hibernate-core')
 
     compile(
         "org.apache.logging.log4j:log4j-api:$log4jVersion",
@@ -43,11 +40,12 @@ dependencies {
         "org.apache.logging.log4j:log4j-jcl:$log4jVersion",
         "org.apache.logging.log4j:log4j-1.2-api:$log4jVersion",
         "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
-        "org.apache.logging.log4j:log4j-jul:$log4jVersion"
+        "org.apache.logging.log4j:log4j-jul:$log4jVersion",
+        "org.apache.logging.log4j:log4j-audit-api:$log4jAuditVersion"
     )
 
+    runtime('org.springframework.boot:spring-boot-devtools')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
-    runtime('org.springframework.boot:spring-boot-devtools')
     compileOnly('org.projectlombok:lombok')
 }
